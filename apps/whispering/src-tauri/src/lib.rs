@@ -27,9 +27,7 @@ pub mod markdown;
 use markdown::{count_markdown_files, delete_files_in_directory, read_markdown_files, write_markdown_files};
 
 pub mod fn_key_listener;
-use fn_key_listener::commands::{
-    is_fn_key_listener_supported, start_fn_key_listener, stop_fn_key_listener,
-};
+use fn_key_listener::commands::{start_fn_key_listener, stop_fn_key_listener};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
@@ -178,10 +176,9 @@ pub async fn run() {
         count_markdown_files,
         delete_files_in_directory,
         write_markdown_files,
-        // Fn key global listener (macOS only; stub on other platforms)
+        // Fn key global listener (macOS only; non-mac stubs error/no-op)
         start_fn_key_listener,
         stop_fn_key_listener,
-        is_fn_key_listener_supported,
     ]);
 
     let app = builder

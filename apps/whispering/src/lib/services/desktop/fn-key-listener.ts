@@ -27,16 +27,8 @@ const FnKeyListenerError = defineErrors({
 	Unsupported: () => ({
 		message: 'Fn key listener is only available on macOS.',
 	}),
-	StartFailed: ({ cause }: { cause: unknown }) => ({
-		message: `Failed to start Fn key listener: ${extractErrorMessage(cause)}`,
-		cause,
-	}),
-	StopFailed: ({ cause }: { cause: unknown }) => ({
-		message: `Failed to stop Fn key listener: ${extractErrorMessage(cause)}`,
-		cause,
-	}),
-	ListenFailed: ({ cause }: { cause: unknown }) => ({
-		message: `Failed to subscribe to Fn key events: ${extractErrorMessage(cause)}`,
+	BridgeFailed: ({ cause }: { cause: unknown }) => ({
+		message: `Fn key listener bridge failed: ${extractErrorMessage(cause)}`,
 		cause,
 	}),
 });
@@ -83,13 +75,13 @@ async function ensureBridgeStarted(): Promise<
 
 	const { data: pressed, error: pressedError } = await tryAsync({
 		try: () => listen('fn-key-pressed', () => dispatch('Pressed')),
-		catch: (error) => FnKeyListenerError.ListenFailed({ cause: error }),
+		catch: (error) => FnKeyListenerError.BridgeFailed({ cause: error }),
 	});
 	if (pressedError) return Err(pressedError);
 
 	const { data: released, error: releasedError } = await tryAsync({
 		try: () => listen('fn-key-released', () => dispatch('Released')),
-		catch: (error) => FnKeyListenerError.ListenFailed({ cause: error }),
+		catch: (error) => FnKeyListenerError.BridgeFailed({ cause: error }),
 	});
 	if (releasedError) {
 		await pressed();
@@ -101,7 +93,7 @@ async function ensureBridgeStarted(): Promise<
 
 	const { error: startError } = await tryAsync({
 		try: () => invoke<void>('start_fn_key_listener'),
-		catch: (error) => FnKeyListenerError.StartFailed({ cause: error }),
+		catch: (error) => FnKeyListenerError.BridgeFailed({ cause: error }),
 	});
 	if (startError) {
 		await pressed();
@@ -125,17 +117,13 @@ async function tearDownBridge(): Promise<Result<void, FnKeyListenerError>> {
 	}
 	const { error } = await tryAsync({
 		try: () => invoke<void>('stop_fn_key_listener'),
-		catch: (error) => FnKeyListenerError.StopFailed({ cause: error }),
+		catch: (error) => FnKeyListenerError.BridgeFailed({ cause: error }),
 	});
 	if (error) return Err(error);
 	return Ok(undefined);
 }
 
 export const FnKeyListenerLive = {
-	isSupported(): boolean {
-		return IS_MACOS;
-	},
-
 	async register({
 		callback,
 		on,
