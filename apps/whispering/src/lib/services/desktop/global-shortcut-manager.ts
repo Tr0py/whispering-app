@@ -173,9 +173,22 @@ export const GlobalShortcutManagerLive = {
 export type GlobalShortcutManager = typeof GlobalShortcutManagerLive;
 
 /**
- * Validates if a string is a valid Electron accelerator
+ * The bare-Fn pseudo-accelerator. Not a real Electron accelerator: the OS
+ * cannot register Fn via `RegisterEventHotKey`, so this string is a sentinel
+ * that the query layer routes to the NSEvent-based Fn key listener instead.
+ * See `services/desktop/fn-key-listener.ts` for details on why.
+ */
+export const FN_ACCELERATOR = 'Fn' as Accelerator;
+
+/**
+ * Validates if a string is a valid Electron accelerator.
+ *
+ * The bare string `'Fn'` is accepted as a single-token pseudo-accelerator
+ * even though Electron itself does not define it. See `FN_ACCELERATOR`.
  */
 export function isValidElectronAccelerator(accelerator: string): boolean {
+	if (accelerator === FN_ACCELERATOR) return true;
+
 	const parts = accelerator.split('+');
 	if (parts.length === 0) return false;
 
@@ -208,6 +221,13 @@ export function isValidElectronAccelerator(accelerator: string): boolean {
 export function pressedKeysToTauriAccelerator(
 	pressedKeys: KeyboardEventSupportedKey[],
 ): Result<Accelerator, InvalidAcceleratorError> {
+	// Fn pressed alone is a special pseudo-accelerator routed through the
+	// NSEvent listener, not the OS hotkey API. See FN_ACCELERATOR.
+	// Lowercase compare because manual edit mode may submit "Fn" or "fn".
+	if (pressedKeys.length === 1 && pressedKeys[0]?.toLowerCase() === 'fn') {
+		return Ok(FN_ACCELERATOR);
+	}
+
 	const modifiers: AcceleratorModifier[] = [];
 	const keyCodes: AcceleratorKeyCode[] = [];
 
@@ -307,7 +327,9 @@ function convertToModifier(
 			return 'Super';
 
 		case 'fn':
-			// These are not supported as Electron accelerator modifiers
+			// Not an Electron accelerator modifier. Fn alone is handled as the
+			// FN_ACCELERATOR pseudo-accelerator and routed through the NSEvent
+			// listener service. Fn+key combinations are not supported.
 			return null;
 
 		default:

@@ -73,6 +73,14 @@ transcribe-rs = { version = "0.2.9", features = ["whisper", "parakeet", "moonshi
 [target.'cfg(target_os = "macos")'.dependencies]
 accessibility-sys =  "0.1.3"
 core-foundation-sys =  "0.8.7"
+# NSEvent global flag monitor for Fn key support (issue #1153).
+# tauri-plugin-global-shortcut wraps Carbon RegisterEventHotKey, which cannot
+# capture the Fn key. We install an NSEvent flag-change monitor instead.
+# Versions chosen to match what cpal pulls in transitively to avoid duplicates.
+objc2 = "0.6"
+objc2-foundation = "0.3"
+objc2-app-kit = { version = "0.3", features = ["NSEvent", "NSResponder", "block2"] }
+block2 = "0.6"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"

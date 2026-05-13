@@ -39,6 +39,7 @@
 			`${CommandOrAlt}+S`,
 			'F5',
 			`Control+${CommandOrAlt}+Delete`,
+			...(IS_MACOS ? ['Fn'] : []),
 		],
 	} as const;
 </script>
@@ -148,6 +149,28 @@
 							<li>Record in reverse: Press the letter first, then Option</li>
 							<li>Edit manually: Type "alt+e" instead of recording</li>
 						</ul>
+					</Alert.Description>
+				</Alert.Root>
+			{/if}
+
+			{#if IS_MACOS && !isLocal}
+				<Alert.Root>
+					<AlertTriangle class="size-4" />
+					<Alert.Title>Using the Fn key on macOS</Alert.Title>
+					<Alert.Description class="space-y-2">
+						<p>
+							<Kbd.Root>Fn</Kbd.Root> is supported as a single-key global shortcut
+							(for example push-to-talk). It requires Accessibility permission and
+							is routed through a dedicated listener instead of the standard hotkey
+							API.
+						</p>
+						<p>
+							Most browsers do not fire keyboard events for the Fn key alone, so
+							press <strong>Edit manually</strong> and type
+							<code class="font-mono text-xs">fn</code> if recording does not pick
+							it up. Fn combined with other keys is not supported; combinations
+							like Fn+F5 are claimed by macOS and arrive as F5 instead.
+						</p>
 					</Alert.Description>
 				</Alert.Root>
 			{/if}

@@ -195,6 +195,12 @@ export const ACCELERATOR_SECTIONS = [
 			'numdiv',
 		] as const satisfies AcceleratorPossibleKey[],
 	},
+	{
+		title: 'macOS Only',
+		description:
+			'Single-key shortcut routed through the Fn key listener (requires Accessibility permission)',
+		keys: ['Fn'] as const satisfies AcceleratorPossibleKey[],
+	},
 ] as const;
 
 /**

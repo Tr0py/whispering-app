@@ -7018,6 +7018,7 @@ name = "whispering"
 version = "7.11.0"
 dependencies = [
  "accessibility-sys",
+ "block2 0.6.2",
  "core-foundation-sys",
  "cpal",
  "dotenvy_macro",
@@ -7027,6 +7028,9 @@ dependencies = [
  "lazy_static",
  "log",
  "nix 0.29.0",
+ "objc2 0.6.3",
+ "objc2-app-kit",
+ "objc2-foundation 0.3.2",
  "rayon",
  "regex",
  "rubato",
