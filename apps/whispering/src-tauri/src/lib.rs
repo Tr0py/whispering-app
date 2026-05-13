@@ -26,6 +26,11 @@ use command::{execute_command, spawn_command};
 pub mod markdown;
 use markdown::{count_markdown_files, delete_files_in_directory, read_markdown_files, write_markdown_files};
 
+pub mod fn_key_listener;
+use fn_key_listener::commands::{
+    is_fn_key_listener_supported, start_fn_key_listener, stop_fn_key_listener,
+};
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 #[tokio::main]
 pub async fn run() {
@@ -131,7 +136,8 @@ pub async fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .manage(AppData::new())
-        .manage(ModelManager::new());
+        .manage(ModelManager::new())
+        .manage(fn_key_listener::FnKeyListener::default());
 
     #[cfg(desktop)]
     {
@@ -172,6 +178,10 @@ pub async fn run() {
         count_markdown_files,
         delete_files_in_directory,
         write_markdown_files,
+        // Fn key global listener (macOS only; stub on other platforms)
+        start_fn_key_listener,
+        stop_fn_key_listener,
+        is_fn_key_listener_supported,
     ]);
 
     let app = builder

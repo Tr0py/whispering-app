@@ -159,6 +159,10 @@ const ACCELERATOR_POSSIBLE_KEYS = [
 	'numsub',
 	'nummult',
 	'numdiv',
+
+	// Single-token pseudo-accelerator routed through the macOS NSEvent listener
+	// rather than tauri-plugin-global-shortcut. See FN_ACCELERATOR.
+	'Fn',
 ] as const;
 
 export type AcceleratorPossibleKey = (typeof ACCELERATOR_POSSIBLE_KEYS)[number];
